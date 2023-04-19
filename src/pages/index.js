@@ -1,9 +1,20 @@
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
+import { io } from "socket.io-client";
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
+  const opts = { reconnectionDelayMax: 10000, path: '/ws' };
+  const socket = io('http://localhost:5000', opts); // TODO: change to process.env.API_ENDPOINT
+
+  socket.on('connect', () => {
+    socket.emit('foo', { msg: 'jam berapa bos?' })
+    console.log('connected to server')
+  })
+  socket.on('disconnect', () => console.log('disconnected from server'))
+  socket.on('bar', (data) => console.log('replied from server with data:', data))
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
@@ -119,6 +130,7 @@ export default function Home() {
           </p>
         </a>
       </div>
+      <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossOrigin="anonymous"></script>
     </main>
   )
 }
